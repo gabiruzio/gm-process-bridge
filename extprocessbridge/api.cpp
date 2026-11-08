@@ -68,6 +68,10 @@ GMEXPORT double window_set_visibility(const char* _handle, double _visibility) {
 #include <vector>
 #include <type_traits>
 
+#define SHM_SEEK_START     0
+#define SHM_SEEK_RELATIVE  1
+#define SHM_SEEK_END       2
+
 
 #define SHM_BUFFER_U8      1
 #define SHM_BUFFER_S8      2
@@ -90,6 +94,8 @@ struct SharedMemory
     uint8_t* data = nullptr;
     size_t size = 0;
     std::string name;
+
+    size_t position = 0;
 };
 
 static std::vector<SharedMemory> g_shared_memories;
@@ -121,7 +127,8 @@ static double shm_register(
             handle,
             data,
             size,
-            name
+            name,
+            0
         });
 
         return static_cast<double>(g_shared_memories.size());
@@ -134,6 +141,32 @@ static double shm_register(
     }
 }
 
+static size_t shm_type_size(int type)
+{
+    switch (type)
+    {
+    case SHM_BUFFER_U8:
+    case SHM_BUFFER_S8:
+    case SHM_BUFFER_BOOL:
+        return 1;
+
+    case SHM_BUFFER_U16:
+    case SHM_BUFFER_S16:
+        return 2;
+
+    case SHM_BUFFER_U32:
+    case SHM_BUFFER_S32:
+    case SHM_BUFFER_F32:
+        return 4;
+
+    case SHM_BUFFER_U64:
+    case SHM_BUFFER_F64:
+        return 8;
+
+    default:
+        return 0;
+    }
+}
 
 static SharedMemory* shm_get(double id)
 {
@@ -555,6 +588,199 @@ GMEXPORT double shm_poke_string(
     return 0;
 }
 
+GMEXPORT double shm_write(
+    double id,
+    double type,
+    double value
+)
+{
+    if (!std::isfinite(type) ||
+        std::floor(type) != type ||
+        type < 1 ||
+        type > 12)
+        return -4;
+
+    if (!std::isfinite(value))
+        return -3;
+
+    const int _type = static_cast<int>(type);
+    const size_t _bytes = shm_type_size(_type);
+
+    if (_bytes == 0)
+        return -4;
+
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    if (_shm->position > _shm->size ||
+        _bytes > _shm->size - _shm->position)
+        return -2;
+
+    const double _result = shm_poke(
+        id,
+        static_cast<double>(_shm->position),
+        type,
+        value
+    );
+
+    if (_result == 0)
+        _shm->position += _bytes;
+
+    return _result;
+}
+
+GMEXPORT double shm_read(
+    double id,
+    double type
+)
+{
+    if (!std::isfinite(type) ||
+        std::floor(type) != type ||
+        type < 1 ||
+        type > 12)
+        return -4;
+
+    const int _type = static_cast<int>(type);
+    const size_t _bytes = shm_type_size(_type);
+
+    if (_bytes == 0)
+        return -4;
+
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    if (_shm->position > _shm->size ||
+        _bytes > _shm->size - _shm->position)
+        return -2;
+
+    const double _value = shm_peek(
+        id,
+        static_cast<double>(_shm->position),
+        type
+    );
+
+    _shm->position += _bytes;
+
+    return _value;
+}
+
+GMEXPORT double shm_write_string(
+    double id,
+    const char* value,
+    double length
+)
+{
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    const double _result = shm_poke_string(
+        id,
+        static_cast<double>(_shm->position),
+        value,
+        length
+    );
+
+    if (_result == 0)
+        _shm->position += static_cast<size_t>(length) + 1;
+
+    return _result;
+}
+
+GMEXPORT const char* shm_read_string(double id)
+{
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm || _shm->position >= _shm->size)
+        return "";
+
+    const char* _source = reinterpret_cast<const char*>(
+        _shm->data + _shm->position
+    );
+
+    const size_t _remaining = _shm->size - _shm->position;
+
+    const char* _end = static_cast<const char*>(
+        std::memchr(_source, '\0', _remaining)
+    );
+
+    if (!_end)
+        return "";
+
+    const size_t _length = static_cast<size_t>(_end - _source);
+
+    try
+    {
+        g_shm_string_result.assign(_source, _length);
+    }
+    catch (...)
+    {
+        return "";
+    }
+
+    _shm->position += _length + 1;
+
+    return g_shm_string_result.c_str();
+}
+
+GMEXPORT double shm_seek(
+    double id,
+    double base,
+    double offset
+)
+{
+    if (!std::isfinite(base) ||
+        std::floor(base) != base ||
+        !std::isfinite(offset) ||
+        std::floor(offset) != offset)
+        return -2;
+
+    if (base < SHM_SEEK_START ||
+        base > SHM_SEEK_END)
+        return -4;
+
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    long double _origin;
+
+    switch (static_cast<int>(base))
+    {
+    case SHM_SEEK_START:
+        _origin = 0;
+        break;
+
+    case SHM_SEEK_RELATIVE:
+        _origin = _shm->position;
+        break;
+
+    case SHM_SEEK_END:
+        _origin = _shm->size;
+        break;
+
+    default:
+        return -4;
+    }
+
+    const long double _target =
+        _origin + static_cast<long double>(offset);
+
+    if (_target <= 0)
+        _shm->position = 0;
+    else if (_target >= _shm->size)
+        _shm->position = _shm->size;
+    else
+        _shm->position = static_cast<size_t>(_target);
+
+    return static_cast<double>(_shm->position);
+}
 
 GMEXPORT double shm_close(double id)
 {

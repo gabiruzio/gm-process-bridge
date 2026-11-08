@@ -13,7 +13,7 @@
 #macro SHM_MAIN global.shmid_main
 #macro SHM_CORE global.shmid_core
 
-function init(){ 
+function init(){  
 	global.shm_main = "m"
 	global.shm_core = "c"
 	global.shmid_main = -1
@@ -33,11 +33,7 @@ function init(){
 	
 	global.nbt = new NamedBinaryTagCodec()
 	
-	var _struct = { ola : "mundo" }
-	var _buffer = global.nbt.encode(_struct)
 	
-	show_message(global.nbt.decode(_buffer))
-
 	
 	//show_message($"app {global.appid}\n\nmain{shm_exists(SHM_MAIN)}\ncore{shm_exists(SHM_CORE)}")
 	

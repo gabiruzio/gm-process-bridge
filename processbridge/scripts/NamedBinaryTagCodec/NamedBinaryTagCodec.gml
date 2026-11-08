@@ -2,7 +2,30 @@
 #macro NBT_DEFAULT_SIZE_IN_BYTES _128KB
 #macro NBT_BUFFER_HEADER_BUFFER_SIZE buffer_u32
 
+#macro SERIALIZER_ERROR show_error($"noyetimpl", true)
 function NamedBinaryTagCodec() constructor {
+	
+	// abstração  
+	
+	static __write = function(_buffer, _type, _value) {
+		if(real(_buffer) < 0) {
+			return shm_write(_buffer, _type, _value)
+		}
+		return buffer_write(_buffer, _type, _value)
+	}
+	static __read = function(_buffer, _type) {
+		if(real(_buffer) < 0) {
+			return shm_read(_buffer, _type)
+		}
+		return buffer_read(_buffer, _type)
+	}
+	static __seek = function(_buffer, _base, _offset) {
+		if(real(_buffer) < 0) {
+			return shm_seek(_buffer, _base, _offset)
+		}
+		return buffer_seek(_buffer, _base, _offset)
+	}
+	
 	/*
 		versao 2
 		data 14/08/2024
@@ -27,22 +50,27 @@ function NamedBinaryTagCodec() constructor {
 	static filter_manager = new NamedBinaryTagFilterManager()
 	static mask_manager = new NamedBinaryTagMaskManager()
 	
-	static encode = function(_struct, _ignore_internal_variables = false, _filter = "") {  
+	static encode = function(_struct, _ignore_internal_variables = false, _filter = "", _destination = undefined) {  
 		//gml_pragma("forceinline")
 		
-		var _buffer 
-		_buffer = buffer_create(NBT_DEFAULT_SIZE_IN_BYTES, buffer_grow, 1)  
-		buffer_seek(_buffer, buffer_seek_start, 0)
+		if(_destination == undefined) {
 		
-		
-		__encode_buffer_write_struct_content(_buffer, _struct, _ignore_internal_variables, _filter)
-		var _tell
-		_tell = buffer_tell(_buffer)
-		
-		buffer_resize(_buffer, _tell)
-		buffer_seek(_buffer, buffer_seek_end, 0)
+			var _buffer 
+			_buffer = buffer_create(NBT_DEFAULT_SIZE_IN_BYTES, buffer_grow, 1)  
+			buffer_seek(_buffer, buffer_seek_start, 0)
 		 
-		return _buffer
+			__encode_buffer_write_struct_content(_buffer, _struct, _ignore_internal_variables, _filter)
+			var _tell
+			_tell = buffer_tell(_buffer)
+		
+			buffer_resize(_buffer, _tell)
+			buffer_seek(_buffer, buffer_seek_end, 0)
+		 
+			return _buffer
+		} else {
+			__encode_buffer_write_struct_content(_destination, _struct, _ignore_internal_variables, _filter)
+		}
+		return undefined 
 	}
 	
 	static __encode_buffer_write_tag_name = function(_buffer, _type, _mask, _tag_name) {
@@ -50,34 +78,34 @@ function NamedBinaryTagCodec() constructor {
 		//if(DEBUG) {
 		//	print($" -> {buffer_tell(_buffer)} {_type} {_tag_name}")
 		//}
-		buffer_write(_buffer, buffer_u8, _type) 
+		__write(_buffer, buffer_u8, _type) 
 		
-		buffer_write(_buffer, buffer_u8, _mask) 
+		__write(_buffer, buffer_u8, _mask) 
 		
-		buffer_write(_buffer, buffer_string, _tag_name)
+		__write(_buffer, buffer_string, _tag_name)
 		
 	}
 	static __econde_buffer_write_real = function(_buffer, _value) {
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_f32, _value)
+		__write(_buffer, buffer_f32, _value)
 	}
 	static __econde_buffer_write_bool = function(_buffer, _bool) {
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_u8, _bool)
+		__write(_buffer, buffer_u8, _bool)
 	}
 	static __encode_buffer_write_string = function(_buffer, _string) { 
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_string, _string)
+		__write(_buffer, buffer_string, _string)
 	}
 	static __encode_buffer_write_array_index = function(_buffer, _index, _type, _mask) {
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_u16, _index)
-		buffer_write(_buffer, buffer_u8, _type)
-		buffer_write(_buffer, buffer_u8, _mask)
+		__write(_buffer, buffer_u16, _index)
+		__write(_buffer, buffer_u8, _type)
+		__write(_buffer, buffer_u8, _mask)
 	}
 	static __encode_buffer_write_array_length = function(_buffer, _length) {
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_u16, _length)
+		__write(_buffer, buffer_u16, _length)
 	}
 	/// @desc Resolve um filtro redirector; retorna vazio quando o valor nao e permitido.
 	static __redirect_filter_resolve = function(_redirect_filter, _value) {
@@ -226,7 +254,7 @@ function NamedBinaryTagCodec() constructor {
 		_variables = _filter_is_valid ? 0 : struct_get_names(_struct) 
 		_variables_count = _filter_is_valid ? _filter_instance.list_length : array_length(_variables)
 		//show_debug_message(instanceof(_struct))
-		buffer_write(_buffer, buffer_string, instanceof(_struct))
+		__write(_buffer, buffer_string, instanceof(_struct))
 		//print($"filter => {_filter} | {_filter_instance}") 
 		//print(instanceof(_struct)) 
 		var _i 
@@ -329,9 +357,9 @@ function NamedBinaryTagCodec() constructor {
 	} 
 	static __encode_buffer_write_struct_end = function(_buffer) {
 		//gml_pragma("forceinline")
-		buffer_write(_buffer, buffer_u8, TAG.END) 
+		__write(_buffer, buffer_u8, TAG.END) 
 	}
-	static __encode_buffer_write_buffer = function(_buffer, _buffer_source) {
+	static __encode_buffer_write_buffer = function(_buffer, _buffer_source) { SERIALIZER_ERROR 
 		//gml_pragma("forceinline")\
 		
 		//buffer_write_buffer(_buffer, _buffer_source)
@@ -348,12 +376,11 @@ function NamedBinaryTagCodec() constructor {
 	static decode = function(_buffer) {
 		//gml_pragma("forceinline")
 		
-		 
 		
-		buffer_seek(_buffer, buffer_seek_start, 0)
+		__seek(_buffer, buffer_seek_start, 0)
 		
 		var _instanceof, _ref, _struct
-		_instanceof = buffer_read(_buffer, buffer_string) 
+		_instanceof = __read(_buffer, buffer_string) 
 		if(_instanceof != "struct") {
 			//show_debug_message($"-> {_instanceof}")
 			_ref = variable_global_get(_instanceof)
@@ -377,21 +404,21 @@ function NamedBinaryTagCodec() constructor {
 		//gml_pragma("forceinline")
 		 
 		var _tag_name  
-		_tag_name = buffer_read(_buffer, buffer_string)
+		_tag_name = __read(_buffer, buffer_string)
 		
 		return _tag_name
 	}
 	static __decode_buffer_get_real = function(_buffer, _mask) {
 		//gml_pragma("forceinline")
-		return mask_manager.unmask(_mask, buffer_read(_buffer, buffer_f32))
+		return mask_manager.unmask(_mask, __read(_buffer, buffer_f32))
 	}
 	static __decode_buffer_get_bool = function(_buffer, _mask) {
 		//gml_pragma("forceinline")
-		return mask_manager.unmask(_mask, buffer_read(_buffer, buffer_u8))
+		return mask_manager.unmask(_mask, __read(_buffer, buffer_u8))
 	}
 	static __decode_buffer_get_string = function(_buffer, _mask) {
 		//gml_pragma("forceinline")
-		return mask_manager.unmask(_mask, buffer_read(_buffer, buffer_string))
+		return mask_manager.unmask(_mask, __read(_buffer, buffer_string))
 	}
 	static __decode_buffer_get_struct = function(_struct, _buffer, _mask) { 
 		//gml_pragma("forceinline")
@@ -401,13 +428,13 @@ function NamedBinaryTagCodec() constructor {
 		
 		//variable_global_get("Pineapple")
 		
-		_type = buffer_read(_buffer, buffer_u8)
+		_type = __read(_buffer, buffer_u8)
 		//_value_mask = buffer_read(_buffer, buffer_u8)
 		 
 		while(_type != TAG.END) {    
 			//var _tell = buffer_tell(_buffer)
 			
-			_value_mask = buffer_read(_buffer, buffer_u8)
+			_value_mask = __read(_buffer, buffer_u8)
 			_tag_name = __decode_buffer_get_tag_name(_buffer) 
 			_tag_name_hash = variable_get_hash(_tag_name)
 			 
@@ -437,7 +464,7 @@ function NamedBinaryTagCodec() constructor {
 					break
 				case TAG.STRUCT: // e MUITO importante ver se ja existe, evitar vazamento 
 					var _instanceof, _ref
-					_instanceof = buffer_read(_buffer, buffer_string)
+					_instanceof = __read(_buffer, buffer_string)
 					
 					// A constructor may declare an optional persisted field as
 					// undefined. If an older save contains a struct for that field,
@@ -474,7 +501,7 @@ function NamedBinaryTagCodec() constructor {
 					_value = []
 					__decode_buffer_get_array(_value, _buffer, _value_mask)
 					break
-				case TAG.BUFFER:
+				case TAG.BUFFER: SERIALIZER_ERROR 
 					var _old_value 
 					_old_value = struct_get_from_hash(_struct, _tag_name_hash) 
 					
@@ -493,7 +520,7 @@ function NamedBinaryTagCodec() constructor {
 			
 			struct_set_from_hash(_struct, _tag_name_hash, _value) 
 			
-			_type = buffer_read(_buffer, buffer_u8) 
+			_type = __read(_buffer, buffer_u8) 
 			 
 		} 
 		
@@ -514,13 +541,13 @@ function NamedBinaryTagCodec() constructor {
 	}
 	static __decode_buffer_get_array = function(_array, _buffer, _mask) { 
 		//gml_pragma("forceinline")
-		var _length = buffer_read(_buffer, buffer_u16), _index
+		var _length = __read(_buffer, buffer_u16), _index
 		var _type, _value_mask, _value , _tag_name 
 		
 		repeat(_length) {
-			_index = buffer_read(_buffer, buffer_u16) 
-			_type = buffer_read(_buffer, buffer_u8)  
-			_value_mask = buffer_read(_buffer, buffer_u8)   
+			_index = __read(_buffer, buffer_u16) 
+			_type = __read(_buffer, buffer_u8)  
+			_value_mask = __read(_buffer, buffer_u8)   
 			
 			// apagar buffer existente no index
 			/*if(_index >= 0 && _index < _length && _index < array_length(_array)) {
@@ -545,7 +572,7 @@ function NamedBinaryTagCodec() constructor {
 					break
 				case TAG.STRUCT:  
 					var _instanceof, _ref 
-					_instanceof = buffer_read(_buffer, buffer_string) 
+					_instanceof = __read(_buffer, buffer_string) 
 					if(_instanceof != "struct") {
 						_ref = variable_global_get(_instanceof) 
 						if(_ref != undefined) {
@@ -584,7 +611,7 @@ function NamedBinaryTagCodec() constructor {
 			_array[ _index] = _value 
 		}
 	} 
-	static __decode_buffer_get_buffer = function(_buffer, _value_mask) {
+	static __decode_buffer_get_buffer = function(_buffer, _value_mask) { SERIALIZER_ERROR
 		//gml_pragma("forceinline")
 		var _size = buffer_read(_buffer, NBT_BUFFER_HEADER_BUFFER_SIZE)
 		 
