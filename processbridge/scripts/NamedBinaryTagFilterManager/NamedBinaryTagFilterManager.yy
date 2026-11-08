@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"NamedBinaryTagFilterManager",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"NamedBinaryTagFilterManager",
+  "parent":{
+    "name":"Serializer",
+    "path":"folders/Serializer.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

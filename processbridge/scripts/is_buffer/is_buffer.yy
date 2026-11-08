@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"is_buffer",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"is_buffer",
+  "parent":{
+    "name":"Serializer",
+    "path":"folders/Serializer.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

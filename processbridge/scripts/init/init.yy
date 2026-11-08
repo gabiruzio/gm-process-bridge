@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"init",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"init",
+  "parent":{
+    "name":"processbridge",
+    "path":"processbridge.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

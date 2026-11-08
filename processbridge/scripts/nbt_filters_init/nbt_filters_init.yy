@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"nbt_filters_init",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"nbt_filters_init",
+  "parent":{
+    "name":"Serializer",
+    "path":"folders/Serializer.yy",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

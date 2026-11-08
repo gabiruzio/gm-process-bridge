@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"shm_open",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"shm_open",
+  "parent":{
+    "name":"processbridge",
+    "path":"processbridge.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}
