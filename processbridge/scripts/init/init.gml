@@ -1,5 +1,7 @@
 
 
+#macro PEER_TIMOUT 10000 
+
 #macro _1KB 0x400
 #macro _8KB 0x2000
 #macro _16KB 0x4000
@@ -10,25 +12,53 @@
 #macro _512KB 0x80000
 #macro _1MB 0x100000
 
+#macro APPID_SELF global.appid
+#macro APPID_MAIN 0 
+#macro APPID_CORE 1 
+
+#macro SHM_H_MAIN global.__shmid_h_main
+#macro SHM_H_CORE global.__shmid_h_core
+#macro SHM_H_SELF (global.appid==0 ? SHM_H_MAIN : SHM_H_CORE)
+#macro SHM_H_OTHER (global.appid==0 ? SHM_H_CORE : SHM_H_MAIN)
+
 #macro SHM_MAIN global.shmid_main
 #macro SHM_CORE global.shmid_core
+#macro SHM_SELF (global.appid==0 ? SHM_MAIN : SHM_CORE)
 
-function init(){  
-	global.shm_main = "m"
-	global.shm_core = "c"
+function init(){   
+	global.__shmid_h_main = -1
+	global.__shmid_h_core = -1
+	
 	global.shmid_main = -1
 	global.shmid_core = -1
+	 
 	
 	global.appid = MultiClientGetID()
+	global.pid = get_process_id() 
 	application_surface_enable(false)
 	application_surface_draw_enable(false)
-	window_set_showborder(false)
+	window_set_showborder(false)  
+	window_set_visibility(string(window_handle()), false)
 	
-	if(!shm_exists(global.shm_main)) SHM_MAIN=shm_create(global.shm_main, 1000) 
-	if(!shm_exists(global.shm_core)) SHM_CORE=shm_create(global.shm_core, 1000) 
+	SHM_MAIN=shm_sync("&M", 1000)
+	SHM_CORE=shm_sync("&C", 1000)
 	
-	SHM_MAIN=shm_open(global.shm_main, 1000)
-	SHM_CORE=shm_open(global.shm_core, 1000)
+	
+	SHM_H_MAIN=shm_sync("Local\\Gabiru.Main.Header", 64)
+	SHM_H_CORE=shm_sync("Local\\Gabiru.Core.Header", 64)
+	
+	
+	
+	shm_poke(SHM_H_SELF, 2, buffer_u64, global.pid) 
+	shm_poke(SHM_H_SELF, 0, buffer_u8, 1) // deve ser a ultima coisa a ser escrita 
+	
+	
+	__wait_peer_initialization() 
+	__wait_peer_ready() 
+	
+	
+	 
+	
 	
 	
 	global.nbt = new NamedBinaryTagCodec()
@@ -38,6 +68,7 @@ function init(){
 	//show_message($"app {global.appid}\n\nmain{shm_exists(SHM_MAIN)}\ncore{shm_exists(SHM_CORE)}")
 	
 	if(global.appid == 0) {
+		window_set_visibility(string(window_handle()), true)
 		window_set_showborder(true)
 		application_surface_draw_enable(true)
 		application_surface_enable(true)
@@ -55,10 +86,15 @@ function init(){
 		room_goto(rm_core)  
 		
 		
-	}
+	} 
+	 
 	
-	show_debug_message($"app {global.appid} iniciou")
-
-	
+	global.box = new Mailbox(
+		APPID_CORE, 
+		APPID_MAIN,
+		,
+		,
+		MAILBOX_TYPE.AUTOMATIC
+	)
 	
 }

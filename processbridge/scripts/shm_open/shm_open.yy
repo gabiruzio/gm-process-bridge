@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"shm_open",
   "parent":{
-    "name":"processbridge",
-    "path":"processbridge.yyp",
+    "name":"Shared Memory",
+    "path":"folders/Shared Memory.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -13,6 +13,10 @@
 #include <string>
 #include <unordered_map>
 #include <mutex>
+#include <algorithm>
+#include <cstring>
+#include <cmath>
+#include <limits>
 
 #ifdef _WIN64
     #define GMEXPORT extern "C" __declspec(dllexport)
@@ -20,6 +24,114 @@
     #define GMEXPORT extern "C"
 #endif
 
+
+GMEXPORT double thread_sleep(double milliseconds) {
+    Sleep(static_cast<DWORD>(milliseconds));
+    return 1.0;
+}
+
+GMEXPORT double get_process_id() {
+    return static_cast<double>(GetCurrentProcessId());
+}
+
+static std::vector<HANDLE> g_peer_processes;
+
+GMEXPORT double peer_pid_add(double pid) {
+    if (pid <= 0.0 || pid > MAXDWORD)
+        return 0.0;
+
+    DWORD _pid = static_cast<DWORD>(pid);
+
+    if (static_cast<double>(_pid) != pid)
+        return 0.0;
+
+    if (_pid == GetCurrentProcessId())
+        return 0.0;
+
+    HANDLE _process = OpenProcess(
+        PROCESS_TERMINATE | SYNCHRONIZE,
+        FALSE,
+        _pid
+    );
+
+    if (!_process)
+        return 0.0;
+
+    for (HANDLE _existing : g_peer_processes) {
+        DWORD _existing_pid = GetProcessId(_existing);
+
+        if (_existing_pid == _pid)
+            return 0.0;
+    }
+
+    g_peer_processes.push_back(_process);
+    return 1.0;
+}
+
+void terminate_peers() {
+    for (HANDLE _process : g_peer_processes) {
+        DWORD _result = WaitForSingleObject(_process, 0);
+
+        if (_result == WAIT_TIMEOUT) {
+            TerminateProcess(_process, 0);
+            WaitForSingleObject(_process, INFINITE);
+        }
+
+        CloseHandle(_process);
+    }
+
+    g_peer_processes.clear();
+}
+
+GMEXPORT double init() {
+
+    return 1.0;
+}
+
+GMEXPORT double final() {
+    terminate_peers();
+    return 1.0;
+}
+
+GMEXPORT double window_set_visibility(const char* _handle, double _visibility) {
+    const auto _value = std::strtoull(_handle, nullptr, 16);
+    HWND _hwnd = reinterpret_cast<HWND>(static_cast<uintptr_t>(_value));
+
+    if (!IsWindow(_hwnd))
+        return -1.0;
+
+    LONG_PTR _style = GetWindowLongPtrW(_hwnd, GWL_EXSTYLE);
+
+    if (_visibility == 0.0) {
+        _style &= ~WS_EX_APPWINDOW;
+        _style |= WS_EX_TOOLWINDOW;
+
+        SetWindowLongPtrW(_hwnd, GWL_EXSTYLE, _style);
+
+        ShowWindow(_hwnd, SW_HIDE);
+    } else {
+        _style &= ~WS_EX_TOOLWINDOW;
+        _style |= WS_EX_APPWINDOW;
+
+        SetWindowLongPtrW(_hwnd, GWL_EXSTYLE, _style);
+
+        ShowWindow(_hwnd, SW_SHOW);
+    }
+
+    SetWindowPos(
+        _hwnd,
+        nullptr,
+        0, 0, 0, 0,
+        SWP_NOMOVE |
+        SWP_NOSIZE |
+        SWP_NOZORDER |
+        SWP_NOACTIVATE |
+        SWP_FRAMECHANGED
+    );
+
+    return IsWindowVisible(_hwnd) ? 1.0 : 0.0;
+}
+/*
 GMEXPORT double window_set_visibility(const char* _handle, double _visibility) {
     const auto _value = std::strtoull(_handle, nullptr, 16);
     HWND _hwnd = reinterpret_cast<HWND>(static_cast<uintptr_t>(_value));
@@ -47,11 +159,12 @@ GMEXPORT double window_set_visibility(const char* _handle, double _visibility) {
             SWP_FRAMECHANGED
         );
     } else {
+
         ShowWindow(_hwnd, SW_SHOW);
     }
 
     return IsWindowVisible(_hwnd) ? 1.0 : 0.0;
-}
+}*/
 
 
 
@@ -780,6 +893,208 @@ GMEXPORT double shm_seek(
         _shm->position = static_cast<size_t>(_target);
 
     return static_cast<double>(_shm->position);
+}
+
+GMEXPORT double shm_copy_b2s( // buffer to sharedmemory
+    const char* param,
+    const char* buffer
+)
+{
+    if (!param)
+        return -3;
+
+    static_assert(sizeof(double) == 8);
+
+    // Lê os parâmetros do buffer.
+    auto _read_param = [&](size_t _offset) -> double
+    {
+        double _value;
+
+        std::memcpy(
+            &_value,
+            param + _offset,
+            sizeof(double)
+        );
+
+        return _value;
+    };
+
+    const double _id = _read_param(0);
+    const double _src_buffer_size_value = _read_param(8);
+    const double _src_offset_value = _read_param(16);
+    const double _size_value = _read_param(24);
+    const double _dest_offset_value = _read_param(32);
+
+    auto _to_size = [](double _value, size_t& _result) -> bool
+    {
+        if (!std::isfinite(_value) ||
+            _value < 0.0 ||
+            std::floor(_value) != _value ||
+            _value >= std::ldexp(
+                1.0,
+                std::numeric_limits<size_t>::digits
+            ))
+            return false;
+
+        _result = static_cast<size_t>(_value);
+        return true;
+    };
+
+    size_t _src_buffer_size;
+    size_t _src_offset;
+    size_t _size;
+    size_t _dest_offset;
+
+    if (!_to_size(_src_buffer_size_value, _src_buffer_size) ||
+        !_to_size(_src_offset_value, _src_offset) ||
+        !_to_size(_size_value, _size) ||
+        !_to_size(_dest_offset_value, _dest_offset))
+        return -2;
+
+    SharedMemory* _shm = shm_get(_id);
+
+    if (!_shm)
+        return -1;
+
+    if (_src_offset > _src_buffer_size ||
+        _dest_offset > _shm->size)
+        return -2;
+
+    size_t _copy_size = std::min(
+        _size,
+        _src_buffer_size - _src_offset
+    );
+
+    _copy_size = std::min(
+        _copy_size,
+        _shm->size - _dest_offset
+    );
+
+    if (_copy_size == 0)
+        return 0;
+
+    if (!buffer)
+        return -3;
+
+    std::memmove(
+        _shm->data + _dest_offset,
+        buffer + _src_offset,
+        _copy_size
+    );
+
+    return static_cast<double>(_copy_size);
+}
+
+GMEXPORT double shm_copy_s2b(
+    const char* param,
+    char* buffer
+)
+{
+    if (!param)
+        return -3;
+
+    static_assert(sizeof(double) == 8);
+
+    // Lê os parâmetros do buffer.
+    auto _read_param = [&](size_t _offset) -> double
+    {
+        double _value;
+
+        std::memcpy(
+            &_value,
+            param + _offset,
+            sizeof(double)
+        );
+
+        return _value;
+    };
+
+    const double _id = _read_param(0);
+    const double _dest_buffer_size_value = _read_param(8);
+    const double _src_offset_value = _read_param(16);
+    const double _size_value = _read_param(24);
+    const double _dest_offset_value = _read_param(32);
+
+    auto _to_size = [](double _value, size_t& _result) -> bool
+    {
+        if (!std::isfinite(_value) ||
+            _value < 0.0 ||
+            std::floor(_value) != _value ||
+            _value >= std::ldexp(
+                1.0,
+                std::numeric_limits<size_t>::digits
+            ))
+            return false;
+
+        _result = static_cast<size_t>(_value);
+        return true;
+    };
+
+    size_t _dest_buffer_size;
+    size_t _src_offset;
+    size_t _size;
+    size_t _dest_offset;
+
+    if (!_to_size(_dest_buffer_size_value, _dest_buffer_size) ||
+        !_to_size(_src_offset_value, _src_offset) ||
+        !_to_size(_size_value, _size) ||
+        !_to_size(_dest_offset_value, _dest_offset))
+        return -2;
+
+    SharedMemory* _shm = shm_get(_id);
+
+    if (!_shm)
+        return -1;
+
+    if (_src_offset > _shm->size ||
+        _dest_offset > _dest_buffer_size)
+        return -2;
+
+    // Limita pelo espaço disponível na Shared Memory.
+    size_t _copy_size = std::min(
+        _size,
+        _shm->size - _src_offset
+    );
+
+    // Limita pelo espaço disponível no buffer de destino.
+    _copy_size = std::min(
+        _copy_size,
+        _dest_buffer_size - _dest_offset
+    );
+
+    if (_copy_size == 0)
+        return 0;
+
+    if (!buffer)
+        return -3;
+
+    std::memmove(
+        buffer + _dest_offset,
+        _shm->data + _src_offset,
+        _copy_size
+    );
+
+    return static_cast<double>(_copy_size);
+}
+
+GMEXPORT double shm_tell(double id)
+{
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    return static_cast<double>(_shm->position);
+}
+
+GMEXPORT double shm_get_size(double id)
+{
+    SharedMemory* _shm = shm_get(id);
+
+    if (!_shm)
+        return -1;
+
+    return static_cast<double>(_shm->size);
 }
 
 GMEXPORT double shm_close(double id)

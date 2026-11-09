@@ -1,0 +1,13 @@
+{
+  "$GMScript":"v1",
+  "%Name":"__wait_peer_ready",
+  "isCompatibility":false,
+  "isDnD":false,
+  "name":"__wait_peer_ready",
+  "parent":{
+    "name":"processbridge",
+    "path":"processbridge.yyp",
+  },
+  "resourceType":"GMScript",
+  "resourceVersion":"2.0",
+}

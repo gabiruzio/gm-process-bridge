@@ -5,4 +5,4 @@ function shm_write(_id, _type, _value){
 		default:
 			return __shm_write(-_id, _type, _value)
 	} 
-}
+} 

@@ -2,7 +2,7 @@
 #macro NBT_DEFAULT_SIZE_IN_BYTES _128KB
 #macro NBT_BUFFER_HEADER_BUFFER_SIZE buffer_u32
 
-#macro SERIALIZER_ERROR show_error($"noyetimpl", true)
+#macro SERIALIZER_ERROR show_error(noyetimpl, true)
 function NamedBinaryTagCodec() constructor {
 	
 	// abstração  
