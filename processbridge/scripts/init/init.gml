@@ -13,6 +13,7 @@
 #macro _1MB 0x100000
 
 #macro APPID_SELF global.appid
+#macro APPKEY global.appkey
 #macro APPID_MAIN 0 
 #macro APPID_CORE 1 
 
@@ -25,7 +26,13 @@
 #macro SHM_CORE global.shmid_core
 #macro SHM_SELF (global.appid==0 ? SHM_MAIN : SHM_CORE)
 
-function init(){   
+function init(){  
+	global.appid = "" 
+	global.appkey = "" 
+	
+	__init_child()
+	
+	
 	global.__shmid_h_main = -1
 	global.__shmid_h_core = -1
 	
@@ -33,19 +40,19 @@ function init(){
 	global.shmid_core = -1
 	 
 	
-	global.appid = MultiClientGetID()
+	//global.appid = MultiClientGetID()
 	global.pid = get_process_id() 
 	application_surface_enable(false)
 	application_surface_draw_enable(false)
 	window_set_showborder(false)  
 	window_set_visibility(string(window_handle()), false)
 	
-	SHM_MAIN=shm_sync("&M", 1000)
-	SHM_CORE=shm_sync("&C", 1000)
+	SHM_MAIN=shm_sync($"&M{APPKEY}", 1000)
+	SHM_CORE=shm_sync($"&C{APPKEY}", 1000)
 	
 	
-	SHM_H_MAIN=shm_sync("Local\\Gabiru.Main.Header", 64)
-	SHM_H_CORE=shm_sync("Local\\Gabiru.Core.Header", 64)
+	SHM_H_MAIN=shm_sync($"Local\\Gabiru.Main.Header.{APPKEY}", 64)
+	SHM_H_CORE=shm_sync($"Local\\Gabiru.Core.Header.{APPKEY}", 64)
 	
 	
 	
@@ -64,8 +71,6 @@ function init(){
 	global.nbt = new NamedBinaryTagCodec()
 	
 	
-	
-	//show_message($"app {global.appid}\n\nmain{shm_exists(SHM_MAIN)}\ncore{shm_exists(SHM_CORE)}")
 	
 	if(global.appid == 0) {
 		window_set_visibility(string(window_handle()), true)

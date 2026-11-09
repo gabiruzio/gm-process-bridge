@@ -24,6 +24,109 @@
     #define GMEXPORT extern "C"
 #endif
 
+#include <windows.h>
+#include <shellapi.h>
+#include <string>
+
+#include <windows.h>
+#include <string>
+#include <vector>
+
+#include <windows.h>
+#include <string>
+#include <vector>
+#include <sstream>
+
+GMEXPORT double launch_another_instance(const char* _param){
+    if (!_param)
+        return 0;
+
+    wchar_t _path[32768] = {};
+
+    DWORD _length = GetModuleFileNameW(
+        nullptr,
+        _path,
+        static_cast<DWORD>(_countof(_path))
+    );
+
+    if (_length == 0 || _length >= _countof(_path))
+        return 0;
+
+    int _utf8_length = MultiByteToWideChar(
+        CP_UTF8, MB_ERR_INVALID_CHARS,
+        _param, -1, nullptr, 0
+    );
+
+    if (_utf8_length <= 0)
+        return 0;
+
+    std::wstring _wide_param(_utf8_length, L'\0');
+
+    if (!MultiByteToWideChar(
+        CP_UTF8, MB_ERR_INVALID_CHARS,
+        _param, -1, _wide_param.data(), _utf8_length
+    ))
+        return 0;
+
+    _wide_param.resize(_utf8_length - 1);
+
+    std::vector<std::wstring> _params;
+
+    std::wistringstream _stream(_wide_param);
+    std::wstring _token;
+
+    while (_stream >> _token)
+        _params.push_back(_token);
+
+    if (_params.empty())
+        return 0;
+
+    std::wstring _command = GetCommandLineW();
+
+    _command += L" --gmext-param-begin";
+
+    for (const auto& _value : _params)
+    {
+        _command += L" ";
+        _command += _value;
+    }
+
+    _command += L" --gmext-param-end";
+
+    if (_command.size() >= 32767)
+        return 0;
+
+    std::vector<wchar_t> _command_buffer(
+        _command.begin(),
+        _command.end()
+    );
+
+    _command_buffer.push_back(L'\0');
+
+    STARTUPINFOW _startup = {};
+    _startup.cb = sizeof(_startup);
+
+    PROCESS_INFORMATION _process = {};
+
+    if (!CreateProcessW(
+        _path,
+        _command_buffer.data(),
+        nullptr,
+        nullptr,
+        FALSE,
+        0,
+        nullptr,
+        nullptr,
+        &_startup,
+        &_process
+    ))
+        return 0;
+
+    CloseHandle(_process.hThread);
+    CloseHandle(_process.hProcess);
+
+    return 1;
+}
 
 GMEXPORT double thread_sleep(double milliseconds) {
     Sleep(static_cast<DWORD>(milliseconds));

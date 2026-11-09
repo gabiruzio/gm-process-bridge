@@ -52,6 +52,7 @@ function Mailbox(
 	timeout = 2000 // em μs | 1000μs = 1ms 
 	
 	name = _name == -1? $"Local\\Mailbox.Count{count}" : _name 
+	name += $".{APPKEY}"
 	size = MAILBOX_HEADER_SIZE + _size
 	shm = shm_sync(name, size) 
 	

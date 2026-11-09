@@ -35,12 +35,12 @@ switch(global.box.type) {
 		global.box.push(global.nbt.encode({
 			teste : "mailbox"
 		}))
-		global.box.push(global.nbt.encode({
+		/*global.box.push(global.nbt.encode({
 			teste : "mailbox2"
 		}))
 		global.box.push(global.nbt.encode({
 			teste : $"mailbox3 {current_time}"
-		}))
+		}))*/
 		break 
 }
 

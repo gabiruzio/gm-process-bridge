@@ -1,12 +1,12 @@
 {
   "$GMScript":"v1",
-  "%Name":"MultiClientGetProxyPath",
+  "%Name":"__init_child",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"MultiClientGetProxyPath",
+  "name":"__init_child",
   "parent":{
-    "name":"MultiClient",
-    "path":"folders/MultiClient.yy",
+    "name":"processbridge",
+    "path":"processbridge.yyp",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

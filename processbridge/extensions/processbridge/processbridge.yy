@@ -40,6 +40,7 @@
         {"$GMExtensionFunction":"","%Name":"__shm_copy_s2b","argCount":0,"args":[1,1,],"documentation":"","externalName":"shm_copy_s2b","help":"","hidden":false,"kind":1,"name":"__shm_copy_s2b","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"__shm_tell","argCount":0,"args":[2,],"documentation":"","externalName":"shm_tell","help":"","hidden":false,"kind":1,"name":"__shm_tell","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"__shm_get_size","argCount":0,"args":[2,],"documentation":"","externalName":"shm_get_size","help":"","hidden":false,"kind":1,"name":"__shm_get_size","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
+        {"$GMExtensionFunction":"","%Name":"launch_another_instance","argCount":0,"args":[1,],"documentation":"","externalName":"launch_another_instance","help":"","hidden":false,"kind":1,"name":"launch_another_instance","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
       ],"init":"__init","kind":1,"name":"","origname":"","ProxyFiles":[],"resourceType":"GMExtensionFile","resourceVersion":"2.0","uncompress":false,"usesRunnerInterface":false,},
   ],
   "gradleinject":null,
