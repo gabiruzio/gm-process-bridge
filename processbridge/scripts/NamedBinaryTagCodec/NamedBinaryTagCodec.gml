@@ -373,11 +373,11 @@ function NamedBinaryTagCodec() constructor {
 	}
  
 	
-	static decode = function(_buffer) {
+	static decode = function(_buffer, _offset = 0) {
 		//gml_pragma("forceinline")
 		
 		
-		__seek(_buffer, buffer_seek_start, 0)
+		__seek(_buffer, buffer_seek_start, _offset)
 		
 		var _instanceof, _ref, _struct
 		_instanceof = __read(_buffer, buffer_string) 

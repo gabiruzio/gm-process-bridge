@@ -27,7 +27,7 @@ function __init_child()
         }
     }
  
-    if (_is_child) {
+    if (_is_child) { 
         if (_child_key == "") {
             show_debug_message("IPC: UUID nao recebido");
             return 0;
@@ -43,7 +43,7 @@ function __init_child()
     global.appkey = uuid_generate();
 
     var _params = $"{__key_prefix}{global.appkey} {__param}";
-
+	
     if (launch_another_instance(_params) == 0) {
         show_debug_message("IPC: Falha ao iniciar segunda instância!");
         return 0;

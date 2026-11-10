@@ -26,7 +26,8 @@
 #macro SHM_CORE global.shmid_core
 #macro SHM_SELF (global.appid==0 ? SHM_MAIN : SHM_CORE)
 
-function init(){  
+
+function init(){   
 	global.appid = "" 
 	global.appkey = "" 
 	
@@ -99,7 +100,7 @@ function init(){
 		APPID_MAIN,
 		,
 		,
-		MAILBOX_TYPE.AUTOMATIC
+		MAILBOX_TYPE.MANUAL
 	)
 	
 }
