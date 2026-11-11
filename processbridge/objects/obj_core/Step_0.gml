@@ -40,13 +40,13 @@ switch(global.box.type) {
 		}
 		
 		// easy option (copy)
-		//global.box.push(global.nbt.encode({
-		//	teste : "mailbox"
-		//}), true) 
-		//global.box.push(global.nbt.encode({
-		//	teste : "mailbox222"
-		//}), true) 
-		//global.box.send()
+		/*global.box.push(global.nbt.encode({
+			teste : "mailbox"
+		}), true) 
+		global.box.push(global.nbt.encode({
+			teste : "mailbox222"
+		}), true) 
+		global.box.send()*/ 
 	
 		break 
 	case MAILBOX_TYPE.AUTOMATIC:

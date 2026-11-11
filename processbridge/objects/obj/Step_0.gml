@@ -20,12 +20,12 @@ switch(global.box.type) {
 		
 		
 		// easy option 2 (copy) 
-		//global.box.receive() 
-		//var _messages = global.box.pull() 
-		//for(var _i = 0; _i < array_length(_messages); _i++) {
-		//	show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
-		//	buffer_delete(_messages[_i])
-		//}
+		/*global.box.receive() 
+		var _messages = global.box.pull() 
+		for(var _i = 0; _i < array_length(_messages); _i++) {
+			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
+			buffer_delete(_messages[_i])
+		}*/
 		break 
 	case MAILBOX_TYPE.AUTOMATIC:
 		

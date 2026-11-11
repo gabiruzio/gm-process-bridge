@@ -92,6 +92,9 @@ function Mailbox(
 	
 	static push = function(_buffer, _owner = false, _offset = 0, _size = buffer_get_size(_buffer)) { 
 		if(_size > payload_size) {
+			if(_owner) {
+				buffer_delete(_buffer)
+			}
 			return false
 		} 
 		array_push(send_queue,[_buffer, _offset, _size, _owner]) 
