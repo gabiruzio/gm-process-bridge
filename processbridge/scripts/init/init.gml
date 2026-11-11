@@ -28,6 +28,7 @@
 
 
 function init(){   
+	 
 	global.appid = "" 
 	global.appkey = "" 
 	
@@ -40,8 +41,7 @@ function init(){
 	global.shmid_main = -1
 	global.shmid_core = -1
 	 
-	
-	//global.appid = MultiClientGetID()
+	 
 	global.pid = get_process_id() 
 	application_surface_enable(false)
 	application_surface_draw_enable(false)

@@ -1,13 +1,13 @@
 @echo off
 cd "%YYoutputFolder%"
 
-set "MCVersion=%GMEXT_MultiClient_VERSION%"
-set "NumOfInsts=%YYEXTOPT_MultiClient_Number_Of_Clients%"
-set "ExecuteInDebug=%YYEXTOPT_MultiClient_Enable_Debug_Mode%"
+set "MCVersion=%GMEXT_PBMultiClient_VERSION%"
+set "NumOfInsts=%YYEXTOPT_PBMultiClient_Number_Of_Clients%"
+set "ExecuteInDebug=%YYEXTOPT_PBMultiClient_Enable_Debug_Mode%"
 set "MaxClients=1"
-set "ShouldProxyClients=%YYEXTOPT_MultiClient_Should_Proxy_Clients%"
-set "ProxyPath=%YYEXTOPT_MultiClient_Proxy_Path%"
-set "ProxyArgs=%YYEXTOPT_MultiClient_Proxy_Args%"
+set "ShouldProxyClients=%YYEXTOPT_PBMultiClient_Should_Proxy_Clients%"
+set "ProxyPath=%YYEXTOPT_PBMultiClient_Proxy_Path%"
+set "ProxyArgs=%YYEXTOPT_PBMultiClient_Proxy_Args%"
 set "UsingDebug=%YYDebug%"
 set "VMPath=%YYRuntimeLocation%"
 
@@ -32,8 +32,8 @@ if "%VMWin%"=="" (
 	)
 )
 
-if "%UsingDebug%"=="" (
-	set %UsingDebug=False%
+if /I not "%UsingDebug%"=="True" (
+    exit /b 0
 )
 
 if %NumOfInsts% LEQ 1 (
@@ -65,7 +65,7 @@ if !UsingDebug! EQU True (
 	)
 )
 
-echo Multi-Client: Running instances %YYEXTOPT_MultiClient_Number_Of_Clients%
+echo Multi-Client: Running instances %YYEXTOPT_PBMultiClient_Number_Of_Clients%
 if %YYPLATFORM_name% EQU HTML5 goto WebClient
 if %YYPLATFORM_name% EQU operagx goto WebClient
 goto main
@@ -74,16 +74,16 @@ set /a "NumOfInsts=%NumOfInsts%-1"
 set /a "MaxClients=%MaxClients%+1"
 if [%YYPREF_default_web_address%]==[] (
 	echo MultiClient: Failed to find YYPREF_default_web_address ^& YYPREF_default_webserver_port. Is Web runner running? 
-	if %YYEXTOPT_MultiClient_Use_GM_Web_Fallback% EQU False (
+	if %YYEXTOPT_PBMultiClient_Use_GM_Web_Fallback% EQU False (
 		echo MultiClient: Use_GM_Web_Fallback is set to False. Please ensure that webserver is running or set Use_GM_Web_Preset to True.
 		echo -------------------------
 		exit 1
 	)
 	
 	echo MultiClient: Use_GM_Web_Fallback is set to True. Using preset.
-	echo MultiClient: Defaulting to %YYEXTOPT_MultiClient_GM_Web_Fallback_Address%:%YYEXTOPT_MultiClient_GM_Web_Fallback_Port%
-	set YYPREF_default_web_address=%YYEXTOPT_MultiClient_GM_Web_Fallback_Address%
-	set YYPREF_default_webserver_port=%YYEXTOPT_MultiClient_GM_Web_Fallback_Port%
+	echo MultiClient: Defaulting to %YYEXTOPT_PBMultiClient_GM_Web_Fallback_Address%:%YYEXTOPT_PBMultiClient_GM_Web_Fallback_Port%
+	set YYPREF_default_web_address=%YYEXTOPT_PBMultiClient_GM_Web_Fallback_Address%
+	set YYPREF_default_webserver_port=%YYEXTOPT_PBMultiClient_GM_Web_Fallback_Port%
 )
 :main
 
@@ -95,9 +95,9 @@ for /l %%x in (1, %MaxClients%, %NumOfInsts%) do (
         if %ShouldProxyClients% EQU True (
             if !n_clients! EQU 0 (
                 if "%YYTARGET_runtime%"=="YYC" (
-                    start /b cmd /C "%YYoutputFolder%\%YYprojectName%.exe" —mc-window-number %%x —mc-client-number %YYEXTOPT_MultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_MultiClient_Search_Port% %YYEXTOPT_MultiClient_Additional_Parameters%
+                    start /b cmd /C "%YYoutputFolder%\%YYprojectName%.exe" —mc-window-number %%x —mc-client-number %YYEXTOPT_PBMultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_PBMultiClient_Search_Port% %YYEXTOPT_PBMultiClient_Additional_Parameters%
                 ) else (
-                    start /b cmd /C %YYruntimeLocation%\Windows\x64\runner.exe -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_MultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_MultiClient_Search_Port% %YYEXTOPT_MultiClient_Additional_Parameters%
+                    start /b cmd /C %YYruntimeLocation%\Windows\x64\runner.exe -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_PBMultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_PBMultiClient_Search_Port% %YYEXTOPT_PBMultiClient_Additional_Parameters%
                 )
             ) else (
                 set token=""
@@ -111,9 +111,9 @@ for /l %%x in (1, %MaxClients%, %NumOfInsts%) do (
                 )
                 echo Proxying client !n_clients!
                 if "%YYTARGET_runtime%"=="YYC" (
-                    "%ProxyPath%" !token!"%YYoutputFolder%\%YYprojectName%.exe" —mc-window-number %%x —mc-client-number %MaxClients% —mc-search-port %YYEXTOPT_MultiClient_Search_Port%" %YYEXTOPT_MultiClient_Additional_Parameters%
+                    "%ProxyPath%" !token!"%YYoutputFolder%\%YYprojectName%.exe" —mc-window-number %%x —mc-client-number %MaxClients% —mc-search-port %YYEXTOPT_PBMultiClient_Search_Port%" %YYEXTOPT_PBMultiClient_Additional_Parameters%
                 ) else (
-                    "%ProxyPath%" !token!%YYruntimeLocation%\Windows\x64\runner.exe -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_MultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_MultiClient_Search_Port% %YYEXTOPT_MultiClient_Additional_Parameters%
+                    "%ProxyPath%" !token!%YYruntimeLocation%\Windows\x64\runner.exe -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_PBMultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_PBMultiClient_Search_Port% %YYEXTOPT_PBMultiClient_Additional_Parameters%
                 )
             )
         ) else (
@@ -121,13 +121,13 @@ for /l %%x in (1, %MaxClients%, %NumOfInsts%) do (
 				start /b "" "%YYoutputFolder%\!YYCEXE!" ^
 					--mc-window-number %%x ^
 					--mc-client-number %MaxClients% ^
-					--mc-search-port %YYEXTOPT_MultiClient_Search_Port% ^
-					%YYEXTOPT_MultiClient_Additional_Parameters%
+					--mc-search-port %YYEXTOPT_PBMultiClient_Search_Port% ^
+					%YYEXTOPT_PBMultiClient_Additional_Parameters%
             ) else (
-                start /b "" cmd /C ^""%YYruntimeLocation%\Windows\x64\runner.exe" -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_MultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_MultiClient_Search_Port% %YYEXTOPT_MultiClient_Additional_Parameters%"
+                start /b "" cmd /C ^""%YYruntimeLocation%\Windows\x64\runner.exe" -game "%YYoutputFolder%\%VMWin%" —mc-window-number %%x —mc-client-number %YYEXTOPT_PBMultiClient_Number_Of_Clients% —mc-search-port %YYEXTOPT_PBMultiClient_Search_Port% %YYEXTOPT_PBMultiClient_Additional_Parameters%"
             )
-			if %YYEXTOPT_MultiClient_Delay_Startup% EQU True (
-				timeout %YYEXTOPT_MultiClient_Delay_Number%
+			if %YYEXTOPT_PBMultiClient_Delay_Startup% EQU True (
+				timeout %YYEXTOPT_PBMultiClient_Delay_Number%
 			)
         )
 	)

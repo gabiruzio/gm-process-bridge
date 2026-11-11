@@ -1,7 +1,7 @@
-/// @func MultiClientGetID
+/// @func __processbridge_multiclient_get_id
 /// @return {Real}
 /// feather ignore all 
-function MultiClientGetID(){
+function __processbridge_multiclient_get_id(){
 	/// feather ignore all 
 	static _num = undefined;
 	if (_num == undefined) {
@@ -52,8 +52,8 @@ function MultiClientGetID(){
 							_num = (_clientNumber-1) - _i;
 							
 							// destroy this socket after however much time we need
-							var _delay = max(extension_get_option_value("MultiClient", "Delay_Number"), 1)
-										*MultiClientGetNumberOfClients()+3;
+							var _delay = max(extension_get_option_value("processbridge_multiclient", "Delay_Number"), 1)
+										*2+3;
 							call_later(_delay, time_source_units_seconds, method({
 								__socket: _socket,
 							}, function() {
@@ -94,4 +94,4 @@ function __MultiClientParseString(_str) {
 	
 	return undefined;
 }
-MultiClientGetID();
+__processbridge_multiclient_get_id();

@@ -1,9 +1,18 @@
-function __init_child()
-{
+function __init_child() {
+	
+	
     static call = false;
     if (call) return 0;
     call = true;
 
+
+
+	if(debug_mode) {
+		global.appid = __processbridge_multiclient_get_id()
+		global.appkey = "debug-mode" 
+
+		return 1 
+	}
     static __param = "ipc-shm-child";
     static __key_prefix = "ipc-shm-child-key-";
 
@@ -44,10 +53,10 @@ function __init_child()
 
     var _params = $"{__key_prefix}{global.appkey} {__param}";
 	
-    if (launch_another_instance(_params) == 0) {
-        show_debug_message("IPC: Falha ao iniciar segunda instância!");
-        return 0;
-    }
-
+	 
+	if (launch_another_instance(_params) == 0) {
+		show_debug_message("IPC: Falha ao iniciar segunda instância!");
+		return 0;
+	} 
     return 1;
 }
