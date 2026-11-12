@@ -95,12 +95,13 @@ function init(){
 	} 
 	 
 	
-	global.box = new Mailbox(
+	/*global.box = new SimplexChannel(
 		APPID_CORE, 
 		APPID_MAIN,
 		,
 		,
-		MAILBOX_TYPE.MANUAL
-	)
+		CHANNEL_TYPE.MANUAL
+	)*/
 	
+	global.pipe = new DuplexChannel(,,CHANNEL_TYPE.MANUAL)
 }

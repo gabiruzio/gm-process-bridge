@@ -2,9 +2,48 @@
 
 shm_poke(SHM_MAIN, 0, buffer_u64, current_time)
 
+if(variable_global_exists("pipe"))
+switch(global.pipe.type) {
+	case CHANNEL_TYPE.MANUAL: 
+		// escrever 
+		if(global.pipe.__flush_open()) {   
+			if(global.pipe.__flush_packet_begin()) { 
+				global.nbt.encode({ msg : "main" }, , , global.pipe.__flush_get_buffer())
+				global.pipe.__flush_packet_commit()
+			} 
+			global.pipe.__flush_close()
+		}
+		
+		// ler 
+		if(global.pipe.__drain_open()) { 
+			while(global.pipe.__drain_packet_begin()) {  
+				var _struct = global.nbt.decode(global.pipe.__drain_get_buffer(), global.pipe.__drain_packet_get_offset())
+				show_debug_message(_struct)
+				global.pipe.__drain_packet_commit()
+			} 
+			global.pipe.__drain_close()
+		}
+		
+		break 
+	case CHANNEL_TYPE.AUTOMATIC:
+		/*
+		global.pipe.push(global.nbt.encode({
+			pipe : "pipe main"
+		}), true)
 
+		var _messages = global.pipe.pull()
+		for(var _i = 0; _i < array_length(_messages); _i++) {
+			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
+			buffer_delete(_messages[_i])
+		}*/
+		break 
+}
+ 
+
+
+if(variable_global_exists("box"))
 switch(global.box.type) {
-	case MAILBOX_TYPE.MANUAL:
+	case CHANNEL_TYPE.MANUAL:
 	
 		// option 1 (no copy)
 		if(global.box.__drain_open()) {
@@ -27,7 +66,7 @@ switch(global.box.type) {
 			buffer_delete(_messages[_i])
 		}*/
 		break 
-	case MAILBOX_TYPE.AUTOMATIC:
+	case CHANNEL_TYPE.AUTOMATIC:
 		
 		var _messages = global.box.pull()
 		for(var _i = 0; _i < array_length(_messages); _i++) {

@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"Pipe",
+  "%Name":"DuplexChannel",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"Pipe",
+  "name":"DuplexChannel",
   "parent":{
     "name":"Shared Memory Communication",
     "path":"folders/Shared Memory Communication.yy",

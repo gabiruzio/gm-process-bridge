@@ -37,7 +37,8 @@
 #include <vector>
 #include <sstream>
 
-GMEXPORT double launch_another_instance(const char* _param){
+GMEXPORT double launch_another_instance(const char* _param)
+{
     if (!_param)
         return 0;
 
@@ -53,44 +54,35 @@ GMEXPORT double launch_another_instance(const char* _param){
         return 0;
 
     int _utf8_length = MultiByteToWideChar(
-        CP_UTF8, MB_ERR_INVALID_CHARS,
-        _param, -1, nullptr, 0
+        CP_UTF8,
+        MB_ERR_INVALID_CHARS,
+        _param,
+        -1,
+        nullptr,
+        0
     );
 
-    if (_utf8_length <= 0)
+    if (_utf8_length <= 1)
         return 0;
 
     std::wstring _wide_param(_utf8_length, L'\0');
 
     if (!MultiByteToWideChar(
-        CP_UTF8, MB_ERR_INVALID_CHARS,
-        _param, -1, _wide_param.data(), _utf8_length
+        CP_UTF8,
+        MB_ERR_INVALID_CHARS,
+        _param,
+        -1,
+        _wide_param.data(),
+        _utf8_length
     ))
         return 0;
 
     _wide_param.resize(_utf8_length - 1);
 
-    std::vector<std::wstring> _params;
-
-    std::wistringstream _stream(_wide_param);
-    std::wstring _token;
-
-    while (_stream >> _token)
-        _params.push_back(_token);
-
-    if (_params.empty())
-        return 0;
-
     std::wstring _command = GetCommandLineW();
 
-    _command += L" --gmext-param-begin";
-
-    for (const auto& _value : _params)
-    {
-        _command += L" ";
-        _command += _value;
-    }
-
+    _command += L" --gmext-param-begin ";
+    _command += _wide_param;
     _command += L" --gmext-param-end";
 
     if (_command.size() >= 32767)
@@ -103,23 +95,110 @@ GMEXPORT double launch_another_instance(const char* _param){
 
     _command_buffer.push_back(L'\0');
 
+    auto _duplicate_handle = [](HANDLE _source) -> HANDLE
+    {
+        if (!_source || _source == INVALID_HANDLE_VALUE)
+            return nullptr;
+
+        HANDLE _copy = nullptr;
+
+        if (!DuplicateHandle(
+            GetCurrentProcess(),
+            _source,
+            GetCurrentProcess(),
+            &_copy,
+            0,
+            TRUE,
+            DUPLICATE_SAME_ACCESS
+        ))
+            return nullptr;
+
+        return _copy;
+    };
+
+    auto _open_null = [](DWORD _access) -> HANDLE
+    {
+        SECURITY_ATTRIBUTES _security = {};
+        _security.nLength = sizeof(_security);
+        _security.bInheritHandle = TRUE;
+
+        HANDLE _handle = CreateFileW(
+            L"NUL",
+            _access,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            &_security,
+            OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr
+        );
+
+        return _handle == INVALID_HANDLE_VALUE ? nullptr : _handle;
+    };
+
+    HANDLE _stdin = _duplicate_handle(
+        GetStdHandle(STD_INPUT_HANDLE)
+    );
+
+    HANDLE _stdout = _duplicate_handle(
+        GetStdHandle(STD_OUTPUT_HANDLE)
+    );
+
+    HANDLE _stderr = _duplicate_handle(
+        GetStdHandle(STD_ERROR_HANDLE)
+    );
+
+    if (!_stdout && _stderr)
+        _stdout = _duplicate_handle(_stderr);
+
+    if (!_stderr && _stdout)
+        _stderr = _duplicate_handle(_stdout);
+
+    if (!_stdin)
+        _stdin = _open_null(GENERIC_READ);
+
+    if (!_stdout)
+        _stdout = _open_null(GENERIC_WRITE);
+
+    if (!_stderr)
+        _stderr = _open_null(GENERIC_WRITE);
+
+    if (!_stdin || !_stdout || !_stderr)
+    {
+        if (_stdin) CloseHandle(_stdin);
+        if (_stdout) CloseHandle(_stdout);
+        if (_stderr) CloseHandle(_stderr);
+
+        return 0;
+    }
+
     STARTUPINFOW _startup = {};
     _startup.cb = sizeof(_startup);
 
+    _startup.dwFlags = STARTF_USESTDHANDLES;
+    _startup.hStdInput = _stdin;
+    _startup.hStdOutput = _stdout;
+    _startup.hStdError = _stderr;
+
     PROCESS_INFORMATION _process = {};
 
-    if (!CreateProcessW(
+    BOOL _created = CreateProcessW(
         _path,
         _command_buffer.data(),
         nullptr,
         nullptr,
-        FALSE,
-        0,
+        TRUE, // Inherit standard handles.
+        0,    // Do not create a new console.
         nullptr,
         nullptr,
         &_startup,
         &_process
-    ))
+    );
+
+    CloseHandle(_stdin);
+    CloseHandle(_stdout);
+    CloseHandle(_stderr);
+
+    if (!_created)
         return 0;
 
     CloseHandle(_process.hThread);

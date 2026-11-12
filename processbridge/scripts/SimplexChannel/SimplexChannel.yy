@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"Mailbox",
+  "%Name":"SimplexChannel",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"Mailbox",
+  "name":"SimplexChannel",
   "parent":{
     "name":"Shared Memory Communication",
     "path":"folders/Shared Memory Communication.yy",

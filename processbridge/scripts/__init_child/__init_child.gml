@@ -13,8 +13,8 @@ function __init_child() {
 
 		return 1 
 	}
-    static __param = "ipc-shm-child";
-    static __key_prefix = "ipc-shm-child-key-";
+    static __param = "-ipc-shm-child";
+    static __key_prefix = "-ipc-shm-child-key-";
 
     var _is_child = false;
     var _child_key = "";
@@ -50,8 +50,8 @@ function __init_child() {
 	
     global.appid = APPID_MAIN;
     global.appkey = uuid_generate();
-
-    var _params = $"{__key_prefix}{global.appkey} {__param}";
+	
+    var _params = $"{__key_prefix}{global.appkey} {__param} ";
 	
 	 
 	if (launch_another_instance(_params) == 0) {
