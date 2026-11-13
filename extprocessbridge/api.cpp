@@ -1259,8 +1259,97 @@ GMEXPORT double shm_copy_s2b(
     return static_cast<double>(_copy_size);
 }
 
-GMEXPORT double shm_tell(double id)
+GMEXPORT double shm_copy_s2s(
+    const char* param
+)
 {
+    if (!param)
+        return -3;
+
+    static_assert(sizeof(double) == 8);
+
+    // Lê os parâmetros.
+    auto _read_param = [&](size_t _offset) -> double
+    {
+        double _value;
+
+        std::memcpy(
+            &_value,
+            param + _offset,
+            sizeof(double)
+        );
+
+        return _value;
+    };
+
+    const double _src_id = _read_param(0);
+    const double _dest_id = _read_param(8);
+    const double _src_offset_value = _read_param(16);
+    const double _size_value = _read_param(24);
+    const double _dest_offset_value = _read_param(32);
+
+    auto _to_size = [](double _value, size_t& _result) -> bool
+    {
+        if (!std::isfinite(_value) ||
+            _value < 0.0 ||
+            std::floor(_value) != _value ||
+            _value >= std::ldexp(
+                1.0,
+                std::numeric_limits<size_t>::digits
+            ))
+            return false;
+
+        _result = static_cast<size_t>(_value);
+        return true;
+    };
+
+    size_t _src_offset;
+    size_t _size;
+    size_t _dest_offset;
+
+    if (!_to_size(_src_offset_value, _src_offset) ||
+        !_to_size(_size_value, _size) ||
+        !_to_size(_dest_offset_value, _dest_offset))
+        return -2;
+
+    SharedMemory* _src_shm = shm_get(_src_id);
+    SharedMemory* _dest_shm = shm_get(_dest_id);
+
+    if (!_src_shm || !_dest_shm)
+        return -1;
+
+    if (_src_offset > _src_shm->size ||
+        _dest_offset > _dest_shm->size)
+        return -2;
+
+    // Limita pelo espaço disponível na memória de origem.
+    size_t _copy_size = std::min(
+        _size,
+        _src_shm->size - _src_offset
+    );
+
+    // Limita pelo espaço disponível na memória de destino.
+    _copy_size = std::min(
+        _copy_size,
+        _dest_shm->size - _dest_offset
+    );
+
+    if (_copy_size == 0)
+        return 0;
+
+    if (!_src_shm->data || !_dest_shm->data)
+        return -3;
+
+    std::memmove(
+        _dest_shm->data + _dest_offset,
+        _src_shm->data + _src_offset,
+        _copy_size
+    );
+
+    return static_cast<double>(_copy_size);
+}
+
+GMEXPORT double shm_tell(double id) {
     SharedMemory* _shm = shm_get(id);
 
     if (!_shm)
@@ -1269,8 +1358,7 @@ GMEXPORT double shm_tell(double id)
     return static_cast<double>(_shm->position);
 }
 
-GMEXPORT double shm_get_size(double id)
-{
+GMEXPORT double shm_get_size(double id) {
     SharedMemory* _shm = shm_get(id);
 
     if (!_shm)
@@ -1279,8 +1367,7 @@ GMEXPORT double shm_get_size(double id)
     return static_cast<double>(_shm->size);
 }
 
-GMEXPORT double shm_close(double id)
-{
+GMEXPORT double shm_close(double id) {
 
     SharedMemory* _shm = shm_get(id);
 

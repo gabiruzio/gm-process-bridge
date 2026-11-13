@@ -274,7 +274,7 @@ function SimplexChannel(
 		if(!flush_manual_packet_open) return false 
 		if(flush_manual_offset + _size >= size) {
 			return false 
-		}
+		} 
 		if(_size <= 0) {
 			show_error("invalid size", true)
 		}

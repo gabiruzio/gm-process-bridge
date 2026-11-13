@@ -7,8 +7,8 @@ switch(global.pipe.type) {
 	case CHANNEL_TYPE.MANUAL: 
 		// escrever 
 		if(global.pipe.__flush_open()) {   
-			if(global.pipe.__flush_packet_begin()) { 
-				global.nbt.encode({ msg : "main" }, , , global.pipe.__flush_get_buffer())
+			if(global.pipe.__flush_packet_begin()) {  
+				Serializer.encode({ msg : "main" }, , global.pipe.__flush_get_buffer())  
 				global.pipe.__flush_packet_commit()
 			} 
 			global.pipe.__flush_close()
@@ -17,7 +17,7 @@ switch(global.pipe.type) {
 		// ler 
 		if(global.pipe.__drain_open()) { 
 			while(global.pipe.__drain_packet_begin()) {  
-				var _struct = global.nbt.decode(global.pipe.__drain_get_buffer(), global.pipe.__drain_packet_get_offset())
+				var _struct = Serializer.decode(global.pipe.__drain_get_buffer(), global.pipe.__drain_packet_get_offset())
 				show_debug_message(_struct)
 				global.pipe.__drain_packet_commit()
 			} 
@@ -27,13 +27,13 @@ switch(global.pipe.type) {
 		break 
 	case CHANNEL_TYPE.AUTOMATIC:
 		/*
-		global.pipe.push(global.nbt.encode({
+		global.pipe.push(Serializer.encode({
 			pipe : "pipe main"
 		}), true)
 
 		var _messages = global.pipe.pull()
 		for(var _i = 0; _i < array_length(_messages); _i++) {
-			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
+			show_debug_message($"message({_i+1}): {Serializer.decode(_messages[_i])}")
 			buffer_delete(_messages[_i])
 		}*/
 		break 
@@ -49,7 +49,7 @@ switch(global.box.type) {
 		if(global.box.__drain_open()) {
 			
 			while(global.box.__drain_packet_begin()) {  
-				var _struct = global.nbt.decode(global.box.shm, global.box.__drain_packet_get_offset())
+				var _struct = Serializer.decode(global.box.shm, global.box.__drain_packet_get_offset())
 				show_debug_message(_struct)
 				global.box.__drain_packet_commit()
 			}
@@ -62,7 +62,7 @@ switch(global.box.type) {
 		/*global.box.receive() 
 		var _messages = global.box.pull() 
 		for(var _i = 0; _i < array_length(_messages); _i++) {
-			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
+			show_debug_message($"message({_i+1}): {Serializer.decode(_messages[_i])}")
 			buffer_delete(_messages[_i])
 		}*/
 		break 
@@ -70,7 +70,7 @@ switch(global.box.type) {
 		
 		var _messages = global.box.pull()
 		for(var _i = 0; _i < array_length(_messages); _i++) {
-			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}")
+			show_debug_message($"message({_i+1}): {Serializer.decode(_messages[_i])}")
 			buffer_delete(_messages[_i])
 		}
 		

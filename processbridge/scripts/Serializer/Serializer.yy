@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"NamedBinaryTagFilter",
+  "%Name":"Serializer",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"NamedBinaryTagFilter",
+  "name":"Serializer",
   "parent":{
     "name":"Serializer",
     "path":"folders/Serializer.yy",

@@ -12,7 +12,7 @@ if(choose(1,0)) _struct.ola = "mundo"
 if(choose(1,0)) _struct.teste = irandom(100)
 
 shm_seek(SHM_CORE, buffer_seek_start, 0)
-global.nbt.encode(_struct, , , SHM_CORE)
+Serializer.encode(_struct, , SHM_CORE)
 
 if(variable_global_exists("pipe"))
 switch(global.pipe.type) {
@@ -21,7 +21,7 @@ switch(global.pipe.type) {
 		// escrever 
 		if(global.pipe.__flush_open()) {  
 			if(global.pipe.__flush_packet_begin()) {
-				global.nbt.encode({ msg : "core" }, , , global.pipe.__flush_get_buffer())
+				Serializer.encode({ msg : "core" }, , global.pipe.__flush_get_buffer())
 				global.pipe.__flush_packet_commit()
 			} 
 			global.pipe.__flush_close()
@@ -30,7 +30,7 @@ switch(global.pipe.type) {
 		// ler 
 		if(global.pipe.__drain_open()) {  
 			while(global.pipe.__drain_packet_begin()) {  
-				var _struct = global.nbt.decode(global.pipe.__drain_get_buffer(), global.pipe.__drain_packet_get_offset())
+				var _struct = Serializer.decode(global.pipe.__drain_get_buffer(), global.pipe.__drain_packet_get_offset())
 				show_debug_message(_struct)
 				global.pipe.__drain_packet_commit()
 			} 
@@ -40,13 +40,13 @@ switch(global.pipe.type) {
 		break 
 	case CHANNEL_TYPE.AUTOMATIC:
 		
-		global.pipe.push(global.nbt.encode({
+		global.pipe.push(Serializer.encode({
 			pipe : "pipe core"
 		}), true)
 
 		var _messages = global.pipe.pull()
 		for(var _i = 0; _i < array_length(_messages); _i++) {
-			show_debug_message($"message({_i+1}): {global.nbt.decode(_messages[_i])}") 
+			show_debug_message($"message({_i+1}): {Serializer.decode(_messages[_i])}") 
 			buffer_delete(_messages[_i])
 		}
 		break 
@@ -61,12 +61,12 @@ switch(global.box.type) {
 		if(global.box.__flush_open()) { 
 		
 			if(global.box.__flush_packet_begin()) {
-				global.nbt.encode({ ola : "mundo" }, , , global.box.shm)
+				Serializer.encode({ ola : "mundo" }, , global.box.shm)
 				global.box.__flush_packet_commit()
 			}
 		
 			if(global.box.__flush_packet_begin()) {
-				global.nbt.encode({ hello : "world" }, , , global.box.shm)
+				Serializer.encode({ hello : "world" }, , global.box.shm)
 				global.box.__flush_packet_commit()
 			}
 			
@@ -74,23 +74,23 @@ switch(global.box.type) {
 		}
 		
 		// easy option (copy)
-		/*global.box.push(global.nbt.encode({
+		/*global.box.push(Serializer.encode({
 			teste : "mailbox"
 		}), true) 
-		global.box.push(global.nbt.encode({
+		global.box.push(Serializer.encode({
 			teste : "mailbox222"
 		}), true) 
 		global.box.send()*/ 
 	
 		break 
 	case CHANNEL_TYPE.AUTOMATIC:
-		//global.box.push(global.nbt.encode({
+		//global.box.push(Serializer.encode({
 		//	teste : "mailbox"
 		//}), true)
-		/*global.box.push(global.nbt.encode({
+		/*global.box.push(Serializer.encode({
 			teste : "mailbox2"
 		}), true)
-		global.box.push(global.nbt.encode({
+		global.box.push(Serializer.encode({
 			teste : $"mailbox3 {current_time}"
 		}), true)*/
 		break 

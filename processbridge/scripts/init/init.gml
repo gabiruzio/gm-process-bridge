@@ -29,6 +29,7 @@
 
 function init(){   
 	 
+	 
 	global.appid = "" 
 	global.appkey = "" 
 	
@@ -67,9 +68,7 @@ function init(){
 	
 	 
 	
-	
-	
-	global.nbt = new NamedBinaryTagCodec()
+	 
 	
 	
 	
