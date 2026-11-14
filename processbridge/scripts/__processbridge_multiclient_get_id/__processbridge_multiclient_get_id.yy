@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"__processbridge_multiclient_get_id",
   "parent":{
-    "name":"processbridge",
-    "path":"processbridge.yyp",
+    "name":"Backend",
+    "path":"folders/Process Bridge/Backend.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -6,7 +6,7 @@
   "name":"SimplexChannel",
   "parent":{
     "name":"Shared Memory Communication",
-    "path":"folders/Shared Memory Communication.yy",
+    "path":"folders/Process Bridge/Shared Memory Communication.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

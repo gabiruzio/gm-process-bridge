@@ -5,8 +5,8 @@
   "isDnD":false,
   "name":"__init_child",
   "parent":{
-    "name":"processbridge",
-    "path":"processbridge.yyp",
+    "name":"Backend",
+    "path":"folders/Process Bridge/Backend.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

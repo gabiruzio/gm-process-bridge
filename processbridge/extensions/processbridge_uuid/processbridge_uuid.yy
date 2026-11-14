@@ -1,6 +1,6 @@
 {
   "$GMExtension":"",
-  "%Name":"uuid_ext",
+  "%Name":"processbridge_uuid",
   "androidactivityinject":null,
   "androidclassname":"",
   "androidcodeinjection":"",
@@ -17,7 +17,7 @@
   "extensionVersion":"0.0.1",
   "files":[
     {"$GMExtensionFile":"v1","%Name":"","constants":[],"copyToTargets":-1,"filename":"gmext_uuid.dll","final":"","functions":[
-        {"$GMExtensionFunction":"","%Name":"uuid_generate","argCount":0,"args":[],"documentation":"","externalName":"uuid_generate","help":"","hidden":false,"kind":1,"name":"uuid_generate","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":1,},
+        {"$GMExtensionFunction":"","%Name":"__uuid_generate","argCount":0,"args":[],"documentation":"","externalName":"uuid_generate","help":"","hidden":false,"kind":1,"name":"__uuid_generate","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":1,},
       ],"init":"","kind":1,"name":"","origname":"","ProxyFiles":[],"resourceType":"GMExtensionFile","resourceVersion":"2.0","uncompress":false,"usesRunnerInterface":false,},
   ],
   "gradleinject":null,
@@ -39,13 +39,13 @@
   "maccompilerflags":"",
   "maclinkerflags":"",
   "macsourcedir":"",
-  "name":"uuid_ext",
+  "name":"processbridge_uuid",
   "options":[],
   "optionsFile":"options.json",
   "packageId":"",
   "parent":{
-    "name":"UUID",
-    "path":"folders/UUID.yy",
+    "name":"Backend",
+    "path":"folders/Process Bridge/Backend.yy",
   },
   "productId":"",
   "resourceType":"GMExtension",

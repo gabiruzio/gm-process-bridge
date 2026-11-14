@@ -1,7 +1,5 @@
 
 
-shm_poke(SHM_MAIN, 0, buffer_u64, current_time)
-
 if(variable_global_exists("pipe"))
 switch(global.pipe.type) {
 	case CHANNEL_TYPE.MANUAL: 

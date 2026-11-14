@@ -1,6 +1,5 @@
 function __wait_peer_initialization(){
-	static call = false
-	if(call) return 0
+	CALLONCE
 	
 	var _initial_time, _elapsed_time, _is_other_initialized
 	_initial_time = get_timer() / 1000

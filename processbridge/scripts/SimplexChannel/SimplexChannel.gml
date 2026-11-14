@@ -15,8 +15,8 @@ function SimplexChannel(
 	_wait_behavior = CHANNEL_WAIT_BEHAVIOR.SLEEP
 	) constructor {
 	
-	static count = 0
-	count++
+	//static count = 0
+	//count++
 	
 	enum CHANNEL_STATUS {
 		EMPTY,
@@ -63,8 +63,8 @@ function SimplexChannel(
 	drain_flow = CHANNEL_DRAIN_FLOW.AUTOMATIC
 	timeout = 2000 // em μs | 1000μs = 1ms 
 	
-	name = _name == -1? $"Local\\Mailbox.Count{count}" : _name 
-	name += $".{APPKEY}"
+	//name = _name == -1? $"Local\\Mailbox.Count{count}" : _name 
+	name = $"Local\\{_name}.{APPKEY}"
 	payload_size = _size
 	size = CHANNEL_HEADER_SIZE + payload_size
 	shm = shm_sync(name, size) 

@@ -6,7 +6,7 @@
   "name":"Serializer",
   "parent":{
     "name":"Serializer",
-    "path":"folders/Serializer.yy",
+    "path":"folders/Process Bridge/Serializer.yy",
   },
   "resourceType":"GMScript",
   "resourceVersion":"2.0",

@@ -53,8 +53,8 @@
   "optionsFile":"options.json",
   "packageId":"",
   "parent":{
-    "name":"processbridge",
-    "path":"processbridge.yyp",
+    "name":"Backend",
+    "path":"folders/Process Bridge/Backend.yy",
   },
   "productId":"",
   "resourceType":"GMExtension",

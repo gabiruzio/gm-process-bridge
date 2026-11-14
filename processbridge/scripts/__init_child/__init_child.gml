@@ -1,11 +1,5 @@
 function __init_child() {
-	
-	
-    static call = false;
-    if (call) return 0;
-    call = true;
-
-
+	CALLONCE 
 
 	if(debug_mode) {
 		global.appid = __processbridge_multiclient_get_id()
@@ -49,7 +43,7 @@ function __init_child() {
     }
 	
     global.appid = APPID_MAIN;
-    global.appkey = uuid_generate();
+    global.appkey = __uuid_generate();
 	
     var _params = $"{__key_prefix}{global.appkey} {__param} ";
 	

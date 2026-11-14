@@ -1,5 +1,5 @@
 function DuplexChannel(
-    _name = -1,
+    _name,
     _size = 0x20000,
     _type = CHANNEL_TYPE.MANUAL,
     _wait_behavior = CHANNEL_WAIT_BEHAVIOR.SLEEP
@@ -7,13 +7,8 @@ function DuplexChannel(
 
     type = _type;
 	
-    var _c2m_name = _name;
-    var _m2c_name = _name;
-
-    if (_name != -1) {
-        _c2m_name = string(_name) + ".c2m"
-        _m2c_name = string(_name) + ".m2c"
-    }
+    var _c2m_name = $"{_name}.c2m";
+    var _m2c_name = $"{_name}.m2c";
 
     // Core -> Main
     c2m = new SimplexChannel(

@@ -1,18 +1,4 @@
-
-counter++
-
-//shm_seek(SHM_CORE, buffer_seek_start, 0)
-//shm_write(SHM_CORE, buffer_string, $"ola mundoo!!! {current_time}")
-
-var _struct = {}
-
-
-if(choose(1,0)) _struct.counter = counter
-if(choose(1,0)) _struct.ola = "mundo"
-if(choose(1,0)) _struct.teste = irandom(100)
-
-shm_seek(SHM_CORE, buffer_seek_start, 0)
-Serializer.encode(_struct, , SHM_CORE)
+ 
 
 if(variable_global_exists("pipe"))
 switch(global.pipe.type) {
@@ -97,6 +83,4 @@ switch(global.box.type) {
 }
 
 
- 
-//shm_poke(SHM_CORE, 0, buffer_string, $"ola {counter}  mundo!!! {current_time} | fps real {fps_real}")  
 
