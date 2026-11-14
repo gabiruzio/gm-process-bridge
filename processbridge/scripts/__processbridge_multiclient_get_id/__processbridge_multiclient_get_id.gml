@@ -13,7 +13,7 @@ function __processbridge_multiclient_get_id(){
 				// Force num to be 0 instead
 				_num = 0;
 				repeat(parameter_count()+1) {
-					var _param = __MultiClientParseString(parameter_string(_i));
+					var _param = __processbridge_multiclient_parse_string(parameter_string(_i));
 					if (_param != undefined) {
 						if (_param[0] == "mc-window-number") {
 							_num = real(_param[1]);
@@ -81,8 +81,8 @@ function __processbridge_multiclient_get_id(){
 	return _num;
 }
 
-/// @ignore
-function __MultiClientParseString(_str) {
+/// @ignore 
+function __processbridge_multiclient_parse_string(_str) { 
 	/// feather ignore all 
 	var _equalPos = string_pos("=", _str);
 	if (_equalPos != 0) {

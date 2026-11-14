@@ -10,17 +10,14 @@
   },
   "defaultScriptType":1,
   "Folders":[
-    {"$GMFolder":"","%Name":"Backend","folderPath":"folders/Process Bridge/Backend.yy","name":"Backend","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Process Bridge","folderPath":"folders/Process Bridge.yy","name":"Process Bridge","resourceType":"GMFolder","resourceVersion":"2.0",},
+    {"$GMFolder":"","%Name":"Backend","folderPath":"folders/Process Bridge/Backend.yy","name":"Backend","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Serializer","folderPath":"folders/Process Bridge/Serializer.yy","name":"Serializer","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Shared Memory Communication","folderPath":"folders/Process Bridge/Shared Memory Communication.yy","name":"Shared Memory Communication","resourceType":"GMFolder","resourceVersion":"2.0",},
     {"$GMFolder":"","%Name":"Shared Memory","folderPath":"folders/Process Bridge/Shared Memory.yy","name":"Shared Memory","resourceType":"GMFolder","resourceVersion":"2.0",},
   ],
   "ForcedPrefabProjectReferences":[],
-  "IncludedFiles":[
-    {"$GMIncludedFile":"","%Name":"execute_shell_simple_ext.html","CopyToMask":-1,"filePath":"datafiles","name":"execute_shell_simple_ext.html","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-    {"$GMIncludedFile":"","%Name":"MultiClient_LaunchChild.bat","CopyToMask":-1,"filePath":"datafiles","name":"MultiClient_LaunchChild.bat","resourceType":"GMIncludedFile","resourceVersion":"2.0",},
-  ],
+  "IncludedFiles":[],
   "isEcma":false,
   "LibraryEmitters":[],
   "MetaData":{

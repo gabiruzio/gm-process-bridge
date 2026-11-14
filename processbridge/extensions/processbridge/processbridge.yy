@@ -16,9 +16,9 @@
   "exportToGame":true,
   "extensionVersion":"0.0.1",
   "files":[
-    {"$GMExtensionFile":"v1","%Name":"","constants":[],"copyToTargets":-1,"filename":"processbridge.dll","final":"__final","functions":[
-        {"$GMExtensionFunction":"","%Name":"__init","argCount":0,"args":[],"documentation":"","externalName":"init","help":"","hidden":false,"kind":1,"name":"__init","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
-        {"$GMExtensionFunction":"","%Name":"__final","argCount":0,"args":[],"documentation":"","externalName":"final","help":"","hidden":false,"kind":1,"name":"__final","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
+    {"$GMExtensionFile":"v1","%Name":"","constants":[],"copyToTargets":-1,"filename":"processbridge.dll","final":"__processbridge_final","functions":[
+        {"$GMExtensionFunction":"","%Name":"__processbridge_init","argCount":0,"args":[],"documentation":"","externalName":"init","help":"","hidden":false,"kind":1,"name":"__processbridge_init","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
+        {"$GMExtensionFunction":"","%Name":"__processbridge_final","argCount":0,"args":[],"documentation":"","externalName":"final","help":"","hidden":false,"kind":1,"name":"__processbridge_final","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"__peer_pid_add","argCount":0,"args":[2,],"documentation":"","externalName":"peer_pid_add","help":"","hidden":false,"kind":1,"name":"__peer_pid_add","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"thread_sleep","argCount":0,"args":[2,],"documentation":"","externalName":"thread_sleep","help":"","hidden":false,"kind":1,"name":"thread_sleep","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"window_set_visibility","argCount":0,"args":[1,2,],"documentation":"","externalName":"window_set_visibility","help":"","hidden":false,"kind":1,"name":"window_set_visibility","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
@@ -42,7 +42,7 @@
         {"$GMExtensionFunction":"","%Name":"__shm_tell","argCount":0,"args":[2,],"documentation":"","externalName":"shm_tell","help":"","hidden":false,"kind":1,"name":"__shm_tell","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"__shm_get_size","argCount":0,"args":[2,],"documentation":"","externalName":"shm_get_size","help":"","hidden":false,"kind":1,"name":"__shm_get_size","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
         {"$GMExtensionFunction":"","%Name":"launch_another_instance","argCount":0,"args":[1,],"documentation":"","externalName":"launch_another_instance","help":"","hidden":false,"kind":1,"name":"launch_another_instance","resourceType":"GMExtensionFunction","resourceVersion":"2.0","returnType":2,},
-      ],"init":"__init","kind":1,"name":"","origname":"","ProxyFiles":[],"resourceType":"GMExtensionFile","resourceVersion":"2.0","uncompress":false,"usesRunnerInterface":false,},
+      ],"init":"__processbridge_init","kind":1,"name":"","origname":"","ProxyFiles":[],"resourceType":"GMExtensionFile","resourceVersion":"2.0","uncompress":false,"usesRunnerInterface":false,},
   ],
   "gradleinject":null,
   "hasConvertedCodeInjection":true,
